@@ -17,6 +17,9 @@ var new_piece_index: int
 var default_timer_interval: float
 var score: int
 
+var touch_start_pos: Vector2 = Vector2.ZERO
+var min_swipe_distance: float = 100.0
+
 var all_pieces: Array = [
 	[# Z
 		[
@@ -322,3 +325,28 @@ func _input(event: InputEvent) -> void:
 		$Timer.wait_time = default_timer_interval * 0.1
 	elif event.is_action_released("ui_down"):
 		$Timer.wait_time = default_timer_interval
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			touch_start_pos = event.position
+		else:
+			var swipe_vector: Vector2 = event.position - touch_start_pos
+			if swipe_vector.length() > min_swipe_distance:
+				var degrees: float = rad_to_deg(swipe_vector.angle())
+				if abs(degrees) < 30.0:
+					if not check_collision(1, 0):
+						undraw_piece()
+						pivot_postion += Vector2i(1, 0)
+						redraw_piece()
+						redraw_tilemap()
+				elif abs(degrees) > 150.0:
+					if not check_collision(-1, 0):
+						undraw_piece()
+						pivot_postion += Vector2i(-1, 0)
+						redraw_piece()
+						redraw_tilemap()
+				elif degrees < -60.0 and degrees > -120.0:
+					if not check_collision_on_rotation():
+						undraw_piece()
+						rotataion_index = (rotataion_index + 1) % rotations.size()
+						redraw_piece()
+						redraw_tilemap()
