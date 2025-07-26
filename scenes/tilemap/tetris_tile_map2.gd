@@ -2,17 +2,20 @@ extends TileMapLayer
 
 @export var width: int
 @export var height: int
+@export var playable_width: int
+@export var playable_height: int
 @export var spawn_position: Vector2i
 
 var matrix: Array
 var rotations: Array
-
 var pivot_postion: Vector2i
 var rotataion_index: int
+var piece_index: int
 
-func _ready() -> void:
-	matrix = get_matrix_from_tilemap(self, width, height)
-	rotations = [
+var default_timer_interval: float
+
+var all_pieces: Array = [
+	[# Z
 		[
 			[2, 1, -1],
 			[-1, 2, 2],
@@ -23,32 +26,75 @@ func _ready() -> void:
 			[-1, 1, 2],
 			[-1, 2, -1],
 		],
-	]
+	],
+	[# box
+		[
+			[1, 1, -1],
+			[2, 2, -1],
+			[-1, -1, -1],
+		],
+	],
+	[# L
+		[
+			[1, -1, -1],
+			[2, 2, 2],
+			[-1, -1, -1],
+		],
+		[
+			[-1, 1, 2],
+			[-1, 1, -1],
+			[-1, 2, -1],
+		],
+		[
+			[-1, -1, -1],
+			[2, 2, 1],
+			[-1, -1, 2],
+		],
+		[
+			[-1, 1, -1],
+			[-1, 1, -1],
+			[2, 2, -1],
+		],
+	],
+	[# T
+		[
+			[-1, 1, -1],
+			[2, 2, 2],
+			[-1, -1, -1],
+		],
+		[
+			[-1, 1, -1],
+			[-1, 1, 2],
+			[-1, 2, -1],
+		],
+		[
+			[-1, -1, -1],
+			[2, 1, 2],
+			[-1, 2, -1],
+		],
+		[
+			[-1, 1, -1],
+			[2, 1, -1],
+			[-1, 2, -1],
+		],
+	],
+]
+
+func _ready() -> void:
+	default_timer_interval = $Timer.wait_time
+	
+	matrix = get_matrix_from_tilemap(self, width, height)
 	spawn_piece()
 	redraw_tilemap()
 
 func spawn_piece():
+	piece_index = randi() % all_pieces.size()
+	rotations = all_pieces[piece_index]
+
 	rotataion_index = 0
+	
 	pivot_postion = spawn_position
 	redraw_piece()
-
-func get_min_distance():
-	var current_rotation: Array = rotations[rotataion_index]
-	var x: int = pivot_postion.x
-	var y: int = pivot_postion.y
-	
-	var min_dist: int = 100
-	
-	for y_index in [-1, 0, 1]:
-		for x_index in [-1, 0, 1]:
-			if current_rotation[y_index + 1][x_index + 1] == 2:
-				var start_x: int = x + x_index
-				var start_y: int = y + y_index
-				for yi in range(start_y, height):
-					if matrix[yi + 1][start_x] > 10:
-						min_dist = min(min_dist, yi - start_y)
-						break
-	return min_dist
 
 func redraw_piece(add_ten: bool = false):
 	var current_rotation: Array = rotations[rotataion_index]
@@ -58,7 +104,7 @@ func redraw_piece(add_ten: bool = false):
 	for y_index in [-1, 0, 1]:
 		for x_index in [-1, 0, 1]:
 			if current_rotation[y_index + 1][x_index + 1] > -1:
-				matrix[y + y_index][x + x_index] = 2
+				matrix[y + y_index][x + x_index] = piece_index + 2
 				if add_ten:
 					matrix[y + y_index][x + x_index] += 10
 
@@ -139,12 +185,45 @@ func check_game_over() -> bool:
 				return true
 	return false
 
+func get_y_values_for_lines() -> Dictionary[int, int]:
+	var current_rotation: Array = rotations[rotataion_index]
+	var x: int = pivot_postion.x
+	var y: int = pivot_postion.y
+	
+	var y_values: Dictionary[int, int] = {}
+	
+	for y_index in [-1, 0, 1]:
+		for x_index in [-1, 0, 1]:
+			var is_part_of_piece: bool = current_rotation[y_index + 1][x_index + 1] > -1
+			if is_part_of_piece:
+				y_values[y_index + y] = 0
+
+	var keys = y_values.keys()
+	for y_value in keys:
+		for x_value in range(1, playable_width + 1):
+			if matrix[y_value][x_value] < 12:
+				y_values.erase(y_value)
+				break
+	
+	return y_values
+
+func destory_lines(y_values: Array[int]) -> void:
+	for y in y_values:
+		for yi in range(y, 2, -1):
+			for xi in  range(1, playable_width + 1):
+				matrix[yi][xi] = matrix[yi - 1][xi]
+
 func _on_timer_timeout() -> void:
 	if check_collision(0, 1):
 		if check_game_over():
 			get_tree().reload_current_scene()
 		
 		redraw_piece(true)
+		
+		var y_values: Dictionary[int, int] = get_y_values_for_lines()
+		print(y_values.keys())
+		destory_lines(y_values.keys())
+		
 		spawn_piece()
 		redraw_tilemap()
 	else:
@@ -173,4 +252,6 @@ func _input(event: InputEvent) -> void:
 			redraw_piece()
 			redraw_tilemap()
 	elif event.is_action_pressed("ui_down"):
-		pass
+		$Timer.wait_time = default_timer_interval * 0.1
+	elif event.is_action_released("ui_down"):
+		$Timer.wait_time = default_timer_interval

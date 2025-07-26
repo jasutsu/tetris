@@ -44,10 +44,12 @@ tile_set = SubResource("TileSet_b2cq8")
 script = ExtResource("2_bovvr")
 width = 20
 height = 24
+playable_width = 10
+playable_height = 21
 spawn_position = Vector2i(5, 1)
 
 [node name="Timer" type="Timer" parent="TileMaps/tetris_tile_map"]
-wait_time = 0.4
+wait_time = 0.5
 autostart = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
