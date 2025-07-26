@@ -19,8 +19,10 @@ config/icon="res://icon.svg"
 
 window/size/viewport_width=256
 window/size/viewport_height=336
+window/size/mode=3
 window/stretch/mode="canvas_items"
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+environment/defaults/default_clear_color=Color(0.0392157, 0.0588235, 0.141176, 1)

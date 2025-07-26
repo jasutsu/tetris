@@ -5,7 +5,7 @@
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xb4v1"]
 texture = ExtResource("1_bovvr")
-0:0/next_alternative_id = 16
+0:0/next_alternative_id = 22
 0:0/0 = 0
 0:0/2 = 2
 0:0/2/modulate = Color(1, 0, 0, 1)
@@ -28,6 +28,18 @@ texture = ExtResource("1_bovvr")
 0:0/12/modulate = Color(1, 0, 0, 1)
 0:0/13 = 13
 0:0/13/modulate = Color(0.916667, 0, 1, 1)
+0:0/7 = 7
+0:0/7/modulate = Color(0.18, 0.385, 1, 1)
+0:0/8 = 8
+0:0/8/modulate = Color(1, 0.822333, 0.18, 1)
+0:0/16 = 16
+0:0/16/modulate = Color(0.913725, 0.529412, 0, 1)
+0:0/17 = 17
+0:0/17/modulate = Color(0.180392, 0.384314, 1, 1)
+0:0/18 = 18
+0:0/18/modulate = Color(1, 0.823529, 0.180392, 1)
+0:0/6 = 6
+0:0/6/modulate = Color(0.913685, 0.531108, 1.73271e-06, 1)
 
 [sub_resource type="TileSet" id="TileSet_b2cq8"]
 custom_data_layer_0/name = "tiletype"
@@ -58,6 +70,7 @@ offset_left = 208.0
 offset_top = 128.0
 offset_right = 263.0
 offset_bottom = 151.0
+theme_override_colors/font_color = Color(0, 0.917647, 1, 1)
 text = "0"
 horizontal_alignment = 1
 
