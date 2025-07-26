@@ -5,95 +5,115 @@ extends TileMapLayer
 @export var playable_width: int
 @export var playable_height: int
 @export var spawn_position: Vector2i
+@export var next_piece_pivot: Vector2i
 
 var matrix: Array
 var rotations: Array
 var pivot_postion: Vector2i
 var rotataion_index: int
 var piece_index: int
+var new_piece_index: int
 
 var default_timer_interval: float
+var score: int
 
 var all_pieces: Array = [
 	[# Z
 		[
-			[2, 1, -1],
-			[-1, 2, 2],
+			[1, 1, -1],
+			[-1, 1, 1],
 			[-1, -1, -1],
 		],
 		[
 			[-1, -1, 1],
-			[-1, 1, 2],
-			[-1, 2, -1],
+			[-1, 1, 1],
+			[-1, 1, -1],
 		],
 	],
 	[# box
 		[
 			[1, 1, -1],
-			[2, 2, -1],
+			[1, 1, -1],
 			[-1, -1, -1],
 		],
 	],
 	[# L
 		[
 			[1, -1, -1],
-			[2, 2, 2],
+			[1, 1, 1],
 			[-1, -1, -1],
 		],
 		[
-			[-1, 1, 2],
+			[-1, 1, 1],
 			[-1, 1, -1],
-			[-1, 2, -1],
+			[-1, 1, -1],
 		],
 		[
 			[-1, -1, -1],
-			[2, 2, 1],
-			[-1, -1, 2],
+			[1, 1, 1],
+			[-1, -1, 1],
 		],
 		[
 			[-1, 1, -1],
 			[-1, 1, -1],
-			[2, 2, -1],
+			[1, 1, -1],
 		],
 	],
 	[# T
 		[
 			[-1, 1, -1],
-			[2, 2, 2],
+			[1, 1, 1],
 			[-1, -1, -1],
 		],
 		[
 			[-1, 1, -1],
-			[-1, 1, 2],
-			[-1, 2, -1],
+			[-1, 1, 1],
+			[-1, 1, -1],
 		],
 		[
 			[-1, -1, -1],
-			[2, 1, 2],
-			[-1, 2, -1],
+			[1, 1, 1],
+			[-1, 1, -1],
 		],
 		[
 			[-1, 1, -1],
-			[2, 1, -1],
-			[-1, 2, -1],
+			[1, 1, -1],
+			[-1, 1, -1],
 		],
 	],
 ]
 
 func _ready() -> void:
 	default_timer_interval = $Timer.wait_time
+	score = 0
 	
 	matrix = get_matrix_from_tilemap(self, width, height)
 	spawn_piece()
 	redraw_tilemap()
 
-func spawn_piece():
-	piece_index = randi() % all_pieces.size()
-	rotations = all_pieces[piece_index]
+func display_next_piece():
+	new_piece_index = randi() % all_pieces.size()
+	var new_piece_rotations: Array = all_pieces[new_piece_index]
+	var current_rotation: Array = new_piece_rotations[0]
+	var x: int = next_piece_pivot.x
+	var y: int = next_piece_pivot.y
+	
+	for y_index in [-1, 0, 1]:
+		for x_index in [-1, 0, 1]:
+			matrix[y + y_index][x + x_index] = -1
+			if current_rotation[y_index + 1][x_index + 1] > -1:
+				matrix[y + y_index][x + x_index] = new_piece_index + 2
 
+func spawn_piece():
+	score += 1
+	$ScoreLabel.text = str(score)
+	
+	piece_index = new_piece_index
+	rotations = all_pieces[piece_index]
 	rotataion_index = 0
 	
 	pivot_postion = spawn_position
+	display_next_piece()
 	redraw_piece()
 
 func redraw_piece(add_ten: bool = false):
