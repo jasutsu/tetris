@@ -5,7 +5,7 @@
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xb4v1"]
 texture = ExtResource("1_bovvr")
-0:0/next_alternative_id = 22
+0:0/next_alternative_id = 23
 0:0/0 = 0
 0:0/2 = 2
 0:0/2/modulate = Color(1, 0, 0, 1)
@@ -40,6 +40,8 @@ texture = ExtResource("1_bovvr")
 0:0/18/modulate = Color(1, 0.823529, 0.180392, 1)
 0:0/6 = 6
 0:0/6/modulate = Color(0.913685, 0.531108, 1.73271e-06, 1)
+0:0/9 = 9
+0:0/9/modulate = Color(1, 1, 1, 0.447059)
 
 [sub_resource type="TileSet" id="TileSet_b2cq8"]
 custom_data_layer_0/name = "tiletype"

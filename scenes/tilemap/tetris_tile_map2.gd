@@ -19,6 +19,7 @@ var score: int
 
 var touch_start_pos: Vector2 = Vector2.ZERO
 var min_swipe_distance: float = 100.0
+var previous_visual_piece_pos: Vector2 = Vector2.ZERO
 
 var all_pieces: Array = [
 	[# Z
@@ -167,6 +168,8 @@ func spawn_piece():
 	redraw_piece()
 
 func redraw_piece(add_ten: bool = false):
+	redraw_visual_piece()
+	
 	var current_rotation: Array = rotations[rotataion_index]
 	var x: int = pivot_postion.x
 	var y: int = pivot_postion.y
@@ -179,12 +182,35 @@ func redraw_piece(add_ten: bool = false):
 					matrix[y + y_index][x + x_index] += 10
 
 func undraw_piece():
+	undraw_visual_piece()
+	
 	var x: int = pivot_postion.x
 	var y: int = pivot_postion.y
 	
 	for y_index in [-1, 0, 1]:
 		for x_index in [-1, 0, 1]:
 			if matrix[y + y_index][x + x_index] < 10:
+				matrix[y + y_index][x + x_index] = -1
+
+func redraw_visual_piece():
+	var current_rotation: Array = rotations[rotataion_index]
+	var distance_from_ground: int = get_y_diff_from_piece_to_ground()
+	previous_visual_piece_pos = Vector2(pivot_postion.x, pivot_postion.y + distance_from_ground)
+	var x: int = previous_visual_piece_pos.x
+	var y: int = previous_visual_piece_pos.y
+	
+	for y_index in [-1, 0, 1]:
+		for x_index in [-1, 0, 1]:
+			if current_rotation[y_index + 1][x_index + 1] > -1:
+				matrix[y + y_index][x + x_index] = 9
+
+func undraw_visual_piece():
+	var x: int = previous_visual_piece_pos.x
+	var y: int = previous_visual_piece_pos.y
+	
+	for y_index in [-1, 0, 1]:
+		for x_index in [-1, 0, 1]:
+			if matrix[y + y_index][x + x_index] == 9:
 				matrix[y + y_index][x + x_index] = -1
 
 func get_matrix_from_tilemap(tile_map_layer: TileMapLayer, width: int, height: int) -> Array:
@@ -213,6 +239,15 @@ func redraw_tilemap() -> void:
 func display_matrix():
 	for y_index in height:
 		print(matrix[y_index])
+
+func get_y_diff_from_piece_to_ground() -> int:
+	var distance: int = 1
+	for y in range(1, height+1):
+		if check_collision(0, y):
+			return distance-1
+		else:
+			distance += 1
+	return 0
 
 func check_collision(dir_x: int, dir_y: int) -> bool:
 	var new_pivot = pivot_postion + Vector2i(dir_x, dir_y)
